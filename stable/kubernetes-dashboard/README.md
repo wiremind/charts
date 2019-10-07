@@ -53,6 +53,8 @@ Moreover, it updates all the labels to the new [recommended labels](https://gith
 
 In order to upgrade, please update your configuration to remove `clusterAdminRole` parameter and uninstall/reinstall the chart.
 
+The parameter `enableInsecureLogin` has been altered. Previously when this parameter was set to true, it also enables the dashboard for being available over HTTP only. From v2.0.0 on when `enableInsecureLogin` was set to true it's now required to also set `protocolHttp` to `true` to keep you're dashboard on HTTP. When this parameter is  set to `false` (default) the dashboard will be served over HTTPS.
+
 ## Access control
 
 It is critical for the Kubernetes cluster to correctly setup access control of Kubernetes Dashboard. See this [guide](https://github.com/kubernetes/dashboard/wiki/Access-control) for best practises.
