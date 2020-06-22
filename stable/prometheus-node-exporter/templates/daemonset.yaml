@@ -38,20 +38,26 @@ spec:
           args:
             - --path.procfs=/host/proc
             - --path.sysfs=/host/sys
+{{- if and .Values.listenOnAllInterfaces .Values.listenOnHostIP }}
+{{- fail "listenOnAllInterfaces and listenOnHostIP values are set to true but are incompatible" }}
+{{- end -}}
+{{- if .Values.listenOnAllInterfaces }}
+            - --web.listen-address=0.0.0.0:{{ .Values.service.port }}
+{{- else if .Values.listenOnHostIP }}
             - --web.listen-address=$(HOST_IP):{{ .Values.service.port }}
+{{- else }}
+            # Listen on the Pod IP (can't get from status.hostIP if hostNetwork is set)
+            - --web.listen-address=$({{ include "prometheus-node-exporter.fullname" . | upper | replace "-" }}_SERVICE_HOST):{{ .Values.service.port }}
+{{- end }}
 {{- if .Values.extraArgs }}
 {{ toYaml .Values.extraArgs | indent 12 }}
 {{- end }}
           env:
           - name: HOST_IP
-            {{- if .Values.service.listenOnAllInterfaces }}
-            value: 0.0.0.0
-            {{- else }}
             valueFrom:
               fieldRef:
                 apiVersion: v1
                 fieldPath: status.hostIP
-            {{- end }}
           ports:
             - name: metrics
               containerPort: {{ .Values.service.targetPort }}

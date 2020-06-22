@@ -11,7 +11,6 @@ service:
   port: 9100
   targetPort: 9100
   nodePort:
-  listenOnAllInterfaces: true
   annotations:
     prometheus.io/scrape: "true"
 
@@ -68,8 +67,19 @@ rbac:
 # their addresses here
 endpoints: []
 
-# Expose the service to the host network
+# Use host Network, required for node_exporter to grab network metrics
+# Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#host-namespaces
 hostNetwork: true
+
+# If true, listen on all interfaces.
+# Else listen on the IP address pod has been assigned by Kubernetes
+# Also see listenOnHostIP. Incompatible with listenOnHostIP
+listenOnAllInterfaces: false
+
+# If true, listen on the host IP (Node IP)
+# Else listen on the IP address pod has been assigned by Kubernetes
+# Also see listenOnAllInterfaces. Incompatible with listenOnAllInterfaces
+listenOnHostIP: false
 
 ## Assign a group of affinity scheduling rules
 ##

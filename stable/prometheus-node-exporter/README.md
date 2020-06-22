@@ -32,6 +32,18 @@ $ helm delete my-release
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
+## Upgrading an existing Release to a new major version
+
+A major chart version change (like v1.2.3 -> v2.0.0) indicates that there is an
+incompatible breaking change needing manual actions.
+
+### To 2.0.0
+
+In order to have more secure defaults (i.e still using the host network but only listening on Pod IP, not Node IP which would expose metrics), the following breaking changes are made:
+
+- `service.listenOnAllInterfaces` parameter has been renamed to `listenOnAllInterfaces` since it is not related to the Service, and is now false by default
+- `listenOnHostIP` parameter has been introduced, set to false by default, in order to listen on HostIP if `listenOnAllInterfaces` is set to false. If false (which is the default), it will listen to Pod IP only.
+
 ## Configuration
 
 The following table lists the configurable parameters of the Node Exporter chart and their default values.
@@ -52,7 +64,6 @@ The following table lists the configurable parameters of the Node Exporter chart
 | `service.port`                        | The service port                                                                                                              | `9100`                                           |
 | `service.targetPort`                  | The target port of the container                                                                                              | `9100`                                           |
 | `service.nodePort`                    | The node port of the service                                                                                                  |                                                  |
-| `service.listenOnAllInterfaces`       | If true, listen on all interfaces using IP `0.0.0.0`. Else listen on the IP address pod has been assigned by Kubernetes.      | `true`                                           |
 | `service.annotations`                 | Kubernetes service annotations                                                                                                | `{prometheus.io/scrape: "true"}`                 |
 | `serviceAccount.create`               | Specifies whether a service account should be created.                                                                        | `true`                                           |
 | `serviceAccount.name`                 | Service account to be used. If not set and `serviceAccount.create` is `true`, a name is generated using the fullname template |                                                  |
@@ -64,6 +75,8 @@ The following table lists the configurable parameters of the Node Exporter chart
 | `priorityClassName`                   | Name of Priority Class to assign pods                                                                                         | `nil`                                            |
 | `endpoints`                           | list of addresses that have node exporter deployed outside of the cluster                                                     | `[]`                                             |
 | `hostNetwork`                         | Whether to expose the service to the host network                                                                             | `true`                                           |
+| `listenOnAllInterfaces`               | If true, listen on all interfaces using IP `0.0.0.0`. Else listen on the IP address pod has been assigned by Kubernetes.      | `false`                                           |
+| `listenOnHostIP`               | If true, listen on the host IP (Node IP), otherwise listen on the IP address pod assigned by Kubernetes. NOT USED if listenOnAllInterfaces is true      | `false`                                           |
 | `prometheus.monitor.enabled`          | Set this to `true` to create ServiceMonitor for Prometheus operator                                                           | `false`                                          |
 | `prometheus.monitor.additionalLabels` | Additional labels that can be used so ServiceMonitor will be discovered by Prometheus                                         | `{}`                                             |
 | `prometheus.monitor.namespace`        | namespace where servicemonitor resource should be created                                                                     | `the same namespace as prometheus node exporter` |
